@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Generador de ideas de diseño: marca, categoría, estética, encargo, reto y una paleta sacada de imágenes al azar o tuyas.">
+<title>Isla de Ideas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
+<style>
+/* Layout: tablón de encargos de un pueblito-isla — tarjetas redonditas color crema con etiquetas tipo nombre, sobre fondo de pasto y hojitas */
+:root{
+  --grass:#7ccf9a; --grass-dk:#5bb57d; --sea:#9fe3df;
+  --card:#fffaea; --card-edge:#efe3c2;
+  --ink:#5b4636; --ink-soft:#8a7462;
+  --leaf:#3fb37f; --sun:#ffcf4a; --peach:#ff9f7a; --sky:#6fc3ff; --berry:#f27fa6;
+  --f-display:"Fredoka","Arial Rounded MT Bold","Trebuchet MS",sans-serif;
+  --f-body:"Nunito","Segoe UI",system-ui,sans-serif;
+  --f-pixel:"Nunito","Segoe UI",system-ui,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{background:var(--grass)}
+body{
+  margin:0;color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;
+  background:
+    radial-gradient(circle at 25% 25%,rgba(255,255,255,.18) 0 7px,transparent 8px) 0 0/64px 64px,
+    radial-gradient(circle at 75% 75%,rgba(40,120,70,.18) 0 5px,transparent 6px) 0 0/64px 64px,
+    linear-gradient(180deg,var(--sea) 0 120px,var(--grass) 220px);
+  min-height:100vh;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:24px 56px;
+}
+.wrap{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.ticker{display:none}
+
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px}
+h1{margin:0;font-family:var(--f-display);font-weight:700;font-size:clamp(40px,7.5vw,78px);line-height:.95;color:#fff;
+  text-shadow:0 4px 0 var(--leaf),0 8px 0 rgba(60,90,60,.25);letter-spacing:-.01em;text-wrap:balance}
+.sub{margin:10px 0 0;display:inline-block;background:var(--card);color:var(--ink);font-family:var(--f-display);font-weight:600;font-size:15px;padding:6px 14px;border-radius:999px;box-shadow:0 3px 0 var(--card-edge)}
+.hero-note{max-width:36ch;margin:0;font-size:15px;background:var(--card);padding:14px 18px;border-radius:24px 24px 24px 6px;box-shadow:0 4px 0 var(--card-edge)}
+
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.gel{font-family:var(--f-display);font-weight:700;font-size:24px;color:#fff;border:0;border-radius:999px;padding:14px 32px;cursor:pointer;
+  background:var(--leaf);box-shadow:0 6px 0 #2b8a5f;transition:transform .1s,box-shadow .1s}
+.gel:hover{transform:translateY(-2px);box-shadow:0 8px 0 #2b8a5f}
+.gel:active{transform:translateY(4px);box-shadow:0 2px 0 #2b8a5f}
+.btn98{font-family:var(--f-display);font-weight:600;font-size:15px;color:var(--ink);background:var(--card);border:0;border-radius:999px;padding:11px 20px;cursor:pointer;box-shadow:0 4px 0 var(--card-edge)}
+.btn98:active{transform:translateY(3px);box-shadow:0 1px 0 var(--card-edge)}
+.kbd{font-size:13px;color:#1f5a3b;font-weight:600}
+:focus-visible{outline:3px solid var(--sun);outline-offset:3px}
+
+.progress{display:flex;gap:6px;align-items:center;flex:0 1 auto}
+.progress i{width:12px;height:12px;border-radius:50% 0;background:#fff;opacity:.35;transition:opacity .05s}
+
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:20px}
+.win{background:var(--card);border-radius:28px;box-shadow:0 6px 0 var(--card-edge),0 10px 24px rgba(40,80,50,.18);display:flex;flex-direction:column;min-width:0;position:relative;padding-top:6px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px 0 16px}
+.bar .t{font-family:var(--f-display);font-weight:600;font-size:15px;color:#fff;background:var(--tag,var(--peach));padding:5px 14px;border-radius:999px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transform:rotate(-2deg);box-shadow:0 3px 0 rgba(0,0,0,.12)}
+.bar .btns{display:flex;gap:6px;flex:none}
+.bar button{height:30px;min-width:30px;padding:0 10px;display:inline-flex;align-items:center;justify-content:center;gap:5px;font-family:var(--f-display);font-weight:600;font-size:13px;color:var(--ink);background:#f3ead0;border:0;border-radius:999px;cursor:pointer}
+.bar button:hover{background:#ebdfbd}
+.bar button[aria-pressed="true"]{background:var(--sun)}
+.bar svg{width:10px;height:12px}
+.body{padding:14px 22px 22px;display:flex;flex-direction:column;gap:10px;flex:1}
+.label{font-family:var(--f-display);font-weight:500;font-size:13px;color:var(--ink-soft)}
+.big{font-family:var(--f-display);font-weight:700;font-size:clamp(34px,5.6vw,62px);line-height:1;margin:0;word-break:break-word;text-wrap:balance;color:var(--ink)}
+.mid{font-family:var(--f-display);font-weight:600;font-size:clamp(22px,2.8vw,28px);line-height:1.15;margin:0;text-wrap:balance}
+.desc{margin:0;font-size:15px;color:var(--ink-soft)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:13px;font-weight:700;padding:4px 12px;background:#e7f6ec;color:#2b7a52;border-radius:999px}
+select{font-family:var(--f-body);font-size:15px;padding:9px 12px;border:0;border-radius:14px;background:#f3ead0;color:var(--ink);max-width:100%}
+
+.w-brand{grid-column:span 7;--tag:var(--peach)}
+.w-cat{grid-column:span 5;--tag:var(--sky)}
+.w-aes{grid-column:span 5;--tag:var(--berry)}
+.w-color{grid-column:span 7;grid-row:span 2;--tag:var(--leaf)}
+.w-del{grid-column:span 5;--tag:#c99a5b}
+.w-reto{grid-column:span 6;--tag:#a98bdb}
+.w-hist{grid-column:span 6;--tag:#7fb0a5}
+
+.imgs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.imgs figure{margin:0;display:flex;flex-direction:column;gap:6px;min-width:0}
+.imgs img{border:0!important;border-radius:20px;box-shadow:0 4px 0 var(--card-edge)}
+.imgs figcaption{font-size:11px;color:var(--ink-soft);text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.palette{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.sw{display:flex;flex-direction:column;align-items:center;gap:6px;border:0;background:none;cursor:pointer;padding:0;font:inherit;color:var(--ink);min-width:0;transition:transform .1s}
+.sw:hover{transform:translateY(-3px) rotate(-3deg)}
+.sw .c{width:100%;aspect-ratio:1;border-radius:50% 50% 50% 12%;box-shadow:inset 0 -6px 0 rgba(0,0,0,.12),0 4px 0 var(--card-edge)}
+.sw .h{font-size:11px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.pal-bar{display:flex;height:16px;border-radius:999px;overflow:hidden}
+.pal-bar span{flex:1}
+.hint{font-size:12px;color:var(--ink-soft);margin:0}
+
+.hist{list-style:none;margin:0;padding:6px;display:flex;flex-direction:column;gap:4px;max-height:260px;overflow:auto;background:#f6eed6;border-radius:18px;
+  background-image:repeating-linear-gradient(transparent 0 33px,#eadfbf 33px 34px)}
+.hist button{width:100%;display:flex;gap:10px;align-items:center;background:none;border:0;padding:6px 8px;cursor:pointer;font:inherit;color:var(--ink);text-align:left;border-radius:12px}
+.hist button:hover{background:rgba(255,255,255,.7)}
+.hist .dots{display:flex;flex:none}
+.hist .dots i{width:14px;height:14px;border-radius:50%;margin-right:-3px;box-shadow:0 0 0 2px var(--card)}
+.hist .n{font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.hist .s{font-size:13px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+.empty{font-size:14px;color:var(--ink-soft);padding:6px}
+
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--card);color:var(--ink);font-family:var(--f-display);font-weight:600;font-size:15px;padding:10px 20px;border-radius:999px;box-shadow:0 4px 0 var(--card-edge),0 8px 20px rgba(0,0,0,.15);z-index:20}
+
+.pop{animation:pop .4s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{from{transform:scale(.94) translateY(6px)}to{transform:none}}
+
+@media (max-width:860px){.w-brand,.w-cat,.w-aes,.w-color,.w-del,.w-reto,.w-hist{grid-column:span 12;grid-row:auto}}
+@media (max-width:420px){.palette{gap:6px}.sw .h{font-size:9px}.gel{font-size:20px;padding:12px 24px}}
+@media (prefers-reduced-motion:reduce){.pop{animation:none}}
+.up{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.up label.btn98{display:inline-block}
+.up .hint{flex:1 1 200px}
+.vh{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.up input:focus-visible+*,.up label:focus-within{outline:3px dashed var(--ink)}
+.lib{display:flex;flex-direction:column;gap:6px}
+.thumbs{display:flex;flex-wrap:wrap;gap:8px}
+.thumb{position:relative;width:58px;height:58px}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block;border-radius:10px;border:2px solid var(--ink)}
+.thumb button{position:absolute;top:-7px;right:-7px;min-width:22px;height:22px;padding:0 6px;border-radius:999px;border:2px solid var(--ink);background:#fff;color:var(--ink);font:700 12px/1 var(--f-body);cursor:pointer;white-space:nowrap}
+.thumb button.armed{background:#ff5a5a;color:#fff}
+.up select{font-size:14px}
+.up label.hint{flex:none}
+.w-color.drop{outline:4px dashed var(--ink);outline-offset:4px}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <div class="ticker" aria-hidden="true"><span id="ticker"></span></div>
+
+  <header>
+    <div><h1>Isla de Ideas</h1><p class="sub">tablón de encargos de diseño</p></div>
+    <p class="hero-note">Llegó un vecino nuevo con un negocio y te pide ayuda con el diseño. Toca “Nueva idea” para conocer su tienda, su estética y su paleta. Fija con el candadito lo que te guste.</p>
+  </header>
+
+  <div class="controls">
+    <button class="gel" id="go" type="button">¡Nueva idea!</button>
+    <button class="btn98" id="copy" type="button">Copiar brief</button>
+    <div class="progress" id="prog" aria-hidden="true"></div>
+    <span class="kbd">o presiona la barra espaciadora</span>
+  </div>
+
+  <main class="grid">
+    <section class="win w-brand" aria-labelledby="t-brand">
+      <div class="bar"><span class="t" id="t-brand">Nueva tienda</span><span class="btns" data-lock="brand"></span></div>
+      <div class="body">
+        <span class="label">Tu marca se llama</span>
+        <p class="big" id="brand"></p>
+        <p class="desc" id="slogan"></p>
+      </div>
+    </section>
+
+    <section class="win w-cat" aria-labelledby="t-cat">
+      <div class="bar"><span class="t" id="t-cat">Giro</span><span class="btns" data-lock="cat"></span></div>
+      <div class="body">
+        <span class="label">Giro del negocio</span>
+        <p class="mid" id="cat"></p>
+        <p class="desc" id="catdesc"></p>
+        <label class="label" for="catsel">Elegir categoría</label>
+        <select id="catsel"><option value="">Aleatoria (sorpréndeme)</option></select>
+      </div>
+    </section>
+
+    <section class="win w-aes" aria-labelledby="t-aes">
+      <div class="bar"><span class="t" id="t-aes">Estética</span><span class="btns" data-lock="aes"></span></div>
+      <div class="body">
+        <span class="label">Estética</span>
+        <p class="mid" id="aes"></p>
+        <p class="desc" id="aesdesc"></p>
+        <div class="chips" id="aeschips"></div>
+      </div>
+    </section>
+
+    <section class="win w-color" aria-labelledby="t-color">
+      <div class="bar"><span class="t" id="t-color">Paleta del día</span><span class="btns" data-lock="color"></span></div>
+      <div class="body">
+        <span class="label">Fotos que encontraste en la isla</span>
+        <div class="up">
+          <label class="btn98" for="upl">Subir mis imágenes</label>
+          <input type="file" id="upl" accept="image/png,image/jpeg,image/gif,image/webp" multiple class="vh">
+          <label class="hint" for="umode">Usar:</label>
+          <select id="umode"><option value="mix">Mezcla (mías + random)</option><option value="mine">Solo las mías</option><option value="rand">Solo random</option></select>
+        </div>
+        <p class="hint" id="ucount">Sube imágenes o arrástralas aquí: se quedan como opciones para el generador.</p>
+        <div class="lib" id="lib" hidden><span class="label" id="libl"></span><div class="thumbs" id="thumbs"></div></div>
+        <div class="imgs" id="imgs"></div>
+        <span class="label">Paleta extraída de las imágenes</span>
+        <div class="pal-bar" id="palbar"></div>
+        <div class="palette" id="palette"></div>
+        <p class="hint">clic en un color para copiar el hex</p>
+      </div>
+    </section>
+
+    <section class="win w-del" aria-labelledby="t-del">
+      <div class="bar"><span class="t" id="t-del">Encargo</span><span class="btns" data-lock="del"></span></div>
+      <div class="body">
+        <span class="label">Lo que tienes que diseñar</span>
+        <p class="mid" id="del"></p>
+        <p class="desc" id="deldesc"></p>
+      </div>
+    </section>
+
+    <section class="win w-reto" aria-labelledby="t-reto">
+      <div class="bar"><span class="t" id="t-reto">Reto extra</span><span class="btns" data-lock="reto"></span></div>
+      <div class="body">
+        <span class="label">Restricción creativa</span>
+        <p class="mid" id="reto"></p>
+      </div>
+    </section>
+
+    <section class="win w-hist" aria-labelledby="t-hist">
+      <div class="bar"><span class="t" id="t-hist">Libreta</span><span class="btns"></span></div>
+      <div class="body">
+        <span class="label">Encargos anteriores (toca uno para recuperarlo)</span>
+        <ul class="hist" id="hist"></ul>
+      </div>
+    </section>
+
+  </main>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(()=>{
+const R=Math.random, pick=a=>a[Math.floor(R()*a.length)], rr=(a,b)=>a+R()*(b-a);
+const $=id=>document.getElementById(id);
+
+/* ---------- datos ---------- */
+const CATS=[
+ ["Cafetería","Café de especialidad con pan dulce y wifi gratis."],
+ ["Skincare","Serums, mascarillas y cremitas con brillito."],
+ ["Streetwear","Ropa oversize, drops limitados y filas afuera."],
+ ["Tienda de discos","Vinilos, CDs y cassettes de segunda mano."],
+ ["Joyería","Accesorios de plata, chaquira y dijes raros."],
+ ["Panadería","Conchas, croissants y pasteles de cumpleaños."],
+ ["Estudio de tatuajes","Flash tattoos, piercings y citas por DM."],
+ ["Tienda de mascotas","Juguetes, snacks y ropita para perrhijos."],
+ ["Florería","Ramos, plantas y arreglos para eventos."],
+ ["Videojuegos indie","Un estudio pequeñito que hace juegos pixel art."],
+ ["Bebidas energéticas","Latas de colores con sabores imposibles."],
+ ["Papelería","Stickers, cuadernos, plumas de gel y washi tape."],
+ ["Heladería","Paletas y helados artesanales de sabores raros."],
+ ["Salón de uñas","Uñas acrílicas, nail art y pedicure."],
+ ["Gimnasio boutique","Clases de spinning, pilates y cardio dance."],
+ ["App de citas","Para conocer gente con tus mismos gustos raros."],
+ ["Marca de velas","Velas aromáticas con formas esculturales."],
+ ["Taquería","Tacos al pastor, aguas frescas y salsas de la casa."],
+ ["Tienda vintage","Ropa de segunda mano curada por épocas."],
+ ["Podcast","Un show semanal de chisme, cultura pop y tarot."],
+ ["Festival de música","Tres días, cuatro escenarios, muchas pulseras."],
+ ["Marca de té","Tés y tisanas en lata para regalar."],
+ ["Agencia de viajes","Viajes en grupo para gente de 20 a 30."],
+ ["Tecnología / gadgets","Audífonos, fundas y cargadores con onda."]
+];
+const AES=[
+ {n:"Frutiger Aero",d:"Burbujas, agua, cielo azul, pasto brillante y vidrio glossy de los 2000.",k:["vidrio","burbujas","peces","gotas","glossy"],h:[[185,215],[95,130]],s:[.55,.9],l:[.45,.82]},
+ {n:"Cybercore",d:"Interfaces futuristas, HUDs, código, cromado y luz neón sobre negro.",k:["HUD","binario","cromo","wireframe","glitch"],h:[[175,200],[285,320]],s:[.85,1],l:[.12,.6]},
+ {n:"McBling",d:"Brillos, terciopelo rosa, strass, logos dorados y flip phones.",k:["strass","terciopelo","dorado","celular flip","glitter"],h:[[305,340],[40,55]],s:[.6,.95],l:[.5,.82]},
+ {n:"Coquette",d:"Moños, encaje, rosa pastel, perlas y letras manuscritas.",k:["moños","encaje","perlas","cerezas","cursivas"],h:[[340,360],[0,22]],s:[.35,.7],l:[.72,.93]},
+ {n:"Grunge noventero",d:"Fotocopias, cinta adhesiva, franela, tipografía rota y ruido.",k:["fotocopia","cinta","franela","collage","ruido"],h:[[18,42],[80,110]],s:[.15,.4],l:[.15,.5]},
+ {n:"Dreamcore",d:"Espacios liminales, nubes, ojos, pasillos vacíos y nostalgia rara.",k:["nubes","liminal","ojos","neblina","nostalgia"],h:[[195,280]],s:[.25,.55],l:[.68,.9]},
+ {n:"Vaporwave",d:"Bustos griegos, palmeras, atardeceres, ventanas de Windows 95.",k:["estatuas","palmeras","grid","japonés","atardecer"],h:[[280,325],[170,195]],s:[.6,.95],l:[.45,.75]},
+ {n:"Kawaii Decora",d:"Capas y capas de stickers, pasadores, colores todos juntos.",k:["stickers","pasadores","arcoíris","caritas","capas"],h:[[0,360]],s:[.7,.95],l:[.6,.82]},
+ {n:"Gorpcore",d:"Ropa de montaña, mapas topográficos, tonos tierra y equipo técnico.",k:["topográfico","outdoor","técnico","tierra","utilitario"],h:[[25,48],[90,145]],s:[.25,.5],l:[.3,.62]},
+ {n:"Web brutalista",d:"HTML crudo, bordes negros, tipografía gigante y colores primarios.",k:["grid crudo","times","hipervínculos","bloques","sin adornos"],h:[[0,10],[220,235],[52,58]],s:[.9,1],l:[.45,.55]},
+ {n:"Barbiecore",d:"Rosa hot pink en todo, plástico brillante, glam sin miedo.",k:["hot pink","plástico","glam","corazones","convertible"],h:[[318,336]],s:[.75,1],l:[.5,.88]},
+ {n:"Solarpunk",d:"Futuro verde: plantas, paneles solares, ciudades optimistas.",k:["plantas","sol","art nouveau","optimista","orgánico"],h:[[80,140],[38,55]],s:[.45,.75],l:[.4,.72]},
+ {n:"Goblincore",d:"Hongos, musgo, piedritas, bichos y tesoros del bosque.",k:["hongos","musgo","piedras","bichos","tierra"],h:[[65,110],[20,40]],s:[.25,.5],l:[.2,.5]},
+ {n:"Old Money",d:"Lino, tenis, caballos, monogramas y tonos crema y verde bosque.",k:["monograma","lino","serif","club","clásico"],h:[[30,45],[110,150]],s:[.15,.35],l:[.25,.85]},
+ {n:"Chrome Y2K",d:"Metal líquido, tipografía cromada, blobs 3D y destellos.",k:["cromo","blob 3D","destellos","plateado","futuro"],h:[[200,250],[0,360]],s:[.05,.3],l:[.3,.92]},
+ {n:"Emo / Scene",d:"Negro y neón, estampados de leopardo, flequillos y MySpace.",k:["MySpace","leopardo","calaveras","neón","checkered"],h:[[280,330],[90,120]],s:[.8,1],l:[.08,.55]}
+];
+const DELS=[
+ ["Logo + identidad básica","Isotipo, logotipo, paleta y tipografías."],
+ ["Empaque","Caja, bolsa o etiqueta del producto estrella."],
+ ["Post de lanzamiento","Carrusel de 3 slides para Instagram."],
+ ["Póster","Póster de evento o lanzamiento tamaño tabloide."],
+ ["Merch","Una playera y una tote bag."],
+ ["Landing page","La sección hero de su página web."],
+ ["Menú o catálogo","Una página con productos y precios."],
+ ["Tarjeta de presentación","Frente y vuelta, con un detallito especial."],
+ ["Sticker pack","6 stickers que la gente sí quiera pegar."],
+ ["Mascota de marca","Un personaje original y 3 expresiones."],
+ ["Portada de álbum / playlist","Cover cuadrado para su playlist oficial."],
+ ["Letrero de fachada","Cómo se vería su local desde la calle."]
+];
+const RETOS=[
+ "Solo puedes usar 2 colores de la paleta.",
+ "Todo tiene que ser tipográfico, cero ilustraciones.",
+ "Incluye un elemento hecho a mano (escaneado o dibujado).",
+ "Usa una tipografía serif como protagonista.",
+ "Esconde un easter egg en el diseño.",
+ "Tiene que funcionar en blanco y negro.",
+ "Incluye una textura de ruido o fotocopia.",
+ "Usa una retícula de 3 columnas y rómpela una vez.",
+ "Mete un degradado, pero solo uno.",
+ "Tiene que verse bien en un sticker de 3 cm.",
+ "Agrega una frase en otro idioma.",
+ "Hazlo en 45 minutos con cronómetro.",
+ "Sin mayúsculas en ningún lado.",
+ "Usa una forma geométrica como hilo conductor.",
+ "Que parezca hecho en 2003, pero se lea en 2026.",
+ "Incluye un icono pixel art."
+];
+const A=["Glitter","Byte","Nube","Chicle","Cereza","Astro","Mango","Pixel","Lunar","Fresa","Cyber","Holo","Neón","Baby","Dulce","Mega","Turbo","Gloss","Kiwi","Dino","Bombón","Cosmo","Jelly","Disco","Brillo","Mora","Sonic","Coco","Lima","Blip","Perla","Zafiro","Moño","Glam","Coral","Melón","Rayo","Gota","Pop","Alien"];
+const B=["Club","Lab","Planet","Box","Zone","Studio","Garden","Factory","Station","Room","Shop","World","Bar","House","Kiosko","Dimension","Market","Cloud","Paradise","Corner"];
+const SUF=[".exe","™","2000"," XO"," 4ever","verse","core","zz","!","*"," Plus"," & Co."," Deluxe","ita","ito","y"," 3000"];
+const SYL=["zu","li","mo","pa","ki","ra","no","be","xi","lu","ta","mi","so","ve","ko","fi","ba","ne","yo","ru","la","pi","do","chi"];
+const SLOGANS=["hecho a mano, pensado para ti","directo desde el año 2000","brillando desde siempre","edición limitada","tu nueva obsesión","pequeños lujos diarios","color para todos los días","lo bonito también importa","hecho en casa, visto en todos lados","para los que coleccionan momentos"];
+const MEMES=[
+ ["el cliente","¿le puedes poner más vida? pero que se vea minimalista."],
+ ["el presupuesto","te pagamos con exposición, va a estar buenísimo para tu portafolio."],
+ ["el archivo","logo_v3_final_FINAL_ahora_si_2.psd"],
+ ["mercurio retrógrado","aprobó esta paleta. no hay devoluciones."],
+ ["tú a las 3 am","no es un bug, es la estética."],
+ ["el cliente otra vez","¿y si el logo lo hacemos más grande?"],
+ ["tu yo de 2004","esto me da vibras de fondo de MySpace y lo amo."],
+ ["la impresora","no detecta el color magenta. nunca lo hizo."],
+ ["tu crush diseñador","¿quieres ver mi carpeta de referencias?"],
+ ["el sistema","se han detectado 47 tipografías instaladas hoy. ¿continuar?"],
+ ["el brief","algo moderno, juvenil, elegante, divertido y serio."],
+ ["Windows XP","la creatividad ha dejado de responder. ¿esperar o cerrar?"]
+];
+const TICK=["ISLA DE IDEAS","marca · categoría · estética · color · entregable · reto","fija lo que te guste con el candado","barra espaciadora para generar"];
+
+/* ---------- estado ---------- */
+const locks={brand:false,cat:false,aes:false,color:false,del:false,reto:false};
+let cur={}, hist=[];
+try{hist=JSON.parse(localStorage.getItem("isla-hist")||"[]")}catch(e){hist=[]}
+
+/* ---------- color utils ---------- */
+function hsl2rgb(h,s,l){h=((h%360)+360)%360/360;const f=n=>{const k=(n+h*12)%12,a=s*Math.min(l,1-l);return Math.round(255*(l-a*Math.max(-1,Math.min(k-3,9-k,1))))};return[f(0),f(8),f(4)]}
+const hex=([r,g,b])=>"#"+[r,g,b].map(v=>v.toString(16).padStart(2,"0")).join("").toUpperCase();
+const css=c=>`rgb(${c[0]},${c[1]},${c[2]})`;
+const lum=([r,g,b])=>.2126*r+.7152*g+.0722*b;
+function aesColor(a){const hr=pick(a.h);return hsl2rgb(rr(hr[0],hr[1]),rr(a.s[0],a.s[1]),rr(a.l[0],a.l[1]))}
+
+/* ---------- generadores de imágenes ---------- */
+const S=240;
+const PAINT={
+ blobs(x,cs){x.fillStyle=css(cs[0]);x.fillRect(0,0,S,S);for(let i=0;i<7;i++){const cx=R()*S,cy=R()*S,r=rr(50,140),g=x.createRadialGradient(cx,cy,0,cx,cy,r),c=cs[1+i%(cs.length-1)];g.addColorStop(0,css(c));g.addColorStop(1,`rgba(${c[0]},${c[1]},${c[2]},0)`);x.fillStyle=g;x.fillRect(0,0,S,S)}},
+ waves(x,cs){for(let y=0;y<S;y+=2){}const n=cs.length,amp=rr(8,26),fr=rr(.02,.06);for(let i=n;i>=0;i--){x.fillStyle=css(cs[i%n]);x.beginPath();x.moveTo(0,S);for(let px=0;px<=S;px+=4){x.lineTo(px,(i/n)*S*1.1-10+Math.sin(px*fr+i)*amp)}x.lineTo(S,S);x.closePath();x.fill()}},
+ bubble(x,cs){const g=x.createLinearGradient(0,0,0,S);g.addColorStop(0,css(cs[0]));g.addColorStop(1,css(cs[1]));x.fillStyle=g;x.fillRect(0,0,S,S);for(let i=0;i<5;i++){const cx=R()*S,cy=R()*S,r=rr(20,70),c=cs[2+i%Math.max(1,cs.length-2)]||cs[2];const rg=x.createRadialGradient(cx-r*.35,cy-r*.4,r*.05,cx,cy,r);rg.addColorStop(0,"rgba(255,255,255,.95)");rg.addColorStop(.35,css(c));rg.addColorStop(1,css(cs[1]));x.fillStyle=rg;x.beginPath();x.arc(cx,cy,r,0,7);x.fill()}},
+ checker(x,cs){x.fillStyle=css(cs[0]);x.fillRect(0,0,S,S);const n=Math.floor(rr(5,10)),sz=S/n,t=rr(-.4,.4);x.save();x.translate(S/2,S/2);x.rotate(t);x.translate(-S,-S);for(let i=0;i<n*2+2;i++)for(let j=0;j<n*2+2;j++){x.fillStyle=css((i+j)%2?cs[0]:cs[1]);x.fillRect(i*sz,j*sz+Math.sin(i*.8)*sz*.3,sz+1,sz+1)}x.restore();x.fillStyle=css(cs[2]);x.beginPath();x.arc(rr(60,180),rr(60,180),rr(25,55),0,7);x.fill()},
+ sunset(x,cs){const g=x.createLinearGradient(0,0,0,S*.6);g.addColorStop(0,css(cs[0]));g.addColorStop(1,css(cs[1]));x.fillStyle=g;x.fillRect(0,0,S,S*.6);x.fillStyle=css(cs[2]);x.beginPath();x.arc(S/2,S*.6,rr(45,75),Math.PI,0);x.fill();x.fillStyle=css(cs[3]||cs[0]);x.fillRect(0,S*.6,S,S*.4);x.strokeStyle=css(cs[1]);x.lineWidth=2;for(let i=0;i<8;i++){const y=S*.6+Math.pow(i/8,1.8)*S*.4;x.beginPath();x.moveTo(0,y);x.lineTo(S,y);x.stroke()}for(let i=-8;i<=8;i++){x.beginPath();x.moveTo(S/2+i*6,S*.6);x.lineTo(S/2+i*50,S);x.stroke()}},
+ stripes(x,cs){const w=rr(14,34);x.save();x.translate(S/2,S/2);x.rotate(rr(0,3.14));for(let i=-20;i<20;i++){x.fillStyle=css(cs[(i+40)%cs.length]);x.fillRect(i*w,-S,w,S*2)}x.restore()},
+ sparkle(x,cs){x.fillStyle=css(cs[0]);x.fillRect(0,0,S,S);for(let i=0;i<14;i++){const cx=R()*S,cy=R()*S,r=rr(8,40);x.fillStyle=css(cs[1+i%(cs.length-1)]);x.beginPath();for(let k=0;k<8;k++){const a=k*Math.PI/4,rad=k%2?r*.22:r;x.lineTo(cx+Math.cos(a)*rad,cy+Math.sin(a)*rad)}x.closePath();x.fill()}}
+};
+function grain(x){const d=x.getImageData(0,0,S,S),p=d.data;for(let i=0;i<p.length;i+=4){const n=(R()-.5)*22;p[i]+=n;p[i+1]+=n;p[i+2]+=n}x.putImageData(d,0,0)}
+const FILES=["foto ","recuerdo ","postal ","álbum "];
+
+function makeImages(a){
+  const kinds=Object.keys(PAINT).sort(()=>R()-.5).slice(0,3);
+  return kinds.map(k=>{const cs=Array.from({length:4},()=>aesColor(a));if(a.n==="Cybercore"||a.n==="Emo / Scene")cs[0]=hsl2rgb(rr(0,360),.2,.06);if(a.n==="Web brutalista")cs[Math.floor(R()*4)]=R()<.5?[255,255,255]:[0,0,0];
+    const c=document.createElement("canvas");c.width=c.height=S;const x=c.getContext("2d");PAINT[k](x,cs);grain(x);
+    const f=pick(FILES);return{url:c.toDataURL("image/jpeg",.82),name:f+"#"+Math.floor(rr(1,99)),canvas:c}});
+}
+function extractPalette(canvases,k=5){
+  const px=[];canvases.forEach(c=>{const d=c.getContext("2d").getImageData(0,0,S,S).data;for(let i=0;i<d.length;i+=4*37)px.push([d[i],d[i+1],d[i+2]])});
+  let cent=[];for(let i=0;i<k;i++)cent.push(px[Math.floor(R()*px.length)]);
+  // k-means++ ligero
+  cent=[px[Math.floor(R()*px.length)]];while(cent.length<k){let best=null,bd=-1;for(let t=0;t<40;t++){const p=px[Math.floor(R()*px.length)];const d=Math.min(...cent.map(c=>dist(p,c)));if(d>bd){bd=d;best=p}}cent.push(best)}
+  for(let it=0;it<10;it++){const sum=cent.map(()=>[0,0,0,0]);px.forEach(p=>{let bi=0,bd=1e9;cent.forEach((c,i)=>{const d=dist(p,c);if(d<bd){bd=d;bi=i}});const s=sum[bi];s[0]+=p[0];s[1]+=p[1];s[2]+=p[2];s[3]++});cent=cent.map((c,i)=>sum[i][3]?[0,1,2].map(j=>Math.round(sum[i][j]/sum[i][3])):c)}
+  return cent.map(c=>c.map(v=>Math.max(0,Math.min(255,v)))).sort((a,b)=>lum(a)-lum(b)).map(hex);
+}
+function dist(a,b){return(a[0]-b[0])**2+(a[1]-b[1])**2+(a[2]-b[2])**2}
+
+/* ---------- nombre ---------- */
+function brandName(){
+  const r=R();
+  if(r<.25)return pick(A)+pick(B);
+  if(r<.45)return pick(A)+pick(SUF);
+  if(r<.6){let s="";const n=2+Math.floor(R()*2);for(let i=0;i<n;i++)s+=pick(SYL);return s[0].toUpperCase()+s.slice(1)+(R()<.5?pick(SUF):"")}
+  if(r<.72)return "Casa "+pick(A);
+  if(r<.84)return pick(A)+" "+pick(A);
+  if(r<.92)return pick(["The ","Le ","La ","El "])+pick(A)+" "+pick(B);
+  return pick(A)+" "+pick(B);
+}
+
+/* ---------- render ---------- */
+function lockBtns(){document.querySelectorAll("[data-lock]").forEach(el=>{const key=el.dataset.lock;el.innerHTML=`<button type="button" aria-pressed="false" aria-label="Fijar ${key}" title="Fijar para que no cambie"><svg viewBox="0 0 10 12" aria-hidden="true"><rect x="1" y="5" width="8" height="7" fill="currentColor"/><path d="M2.5 5V3.5a2.5 2.5 0 0 1 5 0V5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>fijar</span></button><button type="button" aria-label="Volver a tirar solo esto" title="Volver a tirar solo esto">↻</button>`;
+  const [lb,rb]=el.querySelectorAll("button");
+  lb.onclick=()=>{locks[key]=!locks[key];lb.setAttribute("aria-pressed",locks[key]);lb.querySelector("span").textContent=locks[key]?"fijo":"fijar"};
+  rb.onclick=async()=>{await rollOne(key);render(true,key);saveHist()};
+ })}
+
+async function rollOne(key){
+  if(key==="brand"){cur.brand=brandName();cur.slogan=pick(SLOGANS)}
+  if(key==="cat"){const v=$("catsel").value;cur.cat=v?CATS.find(c=>c[0]===v):pick(CATS)}
+  if(key==="aes"){cur.aes=pick(AES);if(!locks.color)await rollColor()}
+  if(key==="color")await rollColor();
+  if(key==="del")cur.del=pick(DELS);
+  if(key==="reto")cur.reto=pick(RETOS);
+}
+async function generate(){
+  ["brand","cat","del","reto"].forEach(k=>{if(!locks[k]||!cur[k])rollOne(k)});
+  if(!locks.aes||!cur.aes)cur.aes=pick(AES);
+  if(!locks.color||!cur.pal)await rollColor();
+  render(true);saveHist();
+}
+function render(anim,only){
+  $("brand").textContent=cur.brand;$("slogan").textContent="“"+cur.slogan+"”";
+  $("cat").textContent=cur.cat[0];$("catdesc").textContent=cur.cat[1];
+  $("aes").textContent=cur.aes.n;$("aesdesc").textContent=cur.aes.d;
+  $("aeschips").innerHTML=cur.aes.k.map(k=>`<span class="chip">${k}</span>`).join("");
+  $("del").textContent=cur.del[0];$("deldesc").textContent=cur.del[1];
+  $("reto").textContent=cur.reto;
+  $("imgs").innerHTML=cur.imgs.map(i=>`<figure><img src="${i.url}" alt="Imagen abstracta generada al azar" style="width:100%;aspect-ratio:1;display:block;border:2px solid var(--ink)"><figcaption>${i.mine?"★ tuya · ":""}${esc(i.name)}</figcaption></figure>`).join("");
+  $("palbar").innerHTML=cur.pal.map(h=>`<span style="background:${h}"></span>`).join("");
+  $("palette").innerHTML=cur.pal.map(h=>`<button class="sw" type="button" data-hex="${h}" aria-label="Copiar ${h}"><span class="c" style="background:${h}"></span><span class="h">${h}</span></button>`).join("");
+  $("palette").querySelectorAll(".sw").forEach(b=>b.onclick=()=>copy(b.dataset.hex,"copiado "+b.dataset.hex));
+  if(anim){const sel=only?[`.w-${{brand:"brand",cat:"cat",aes:"aes",color:"color",del:"del",reto:"reto"}[only]}`]:[".w-brand",".w-cat",".w-aes",".w-color",".w-del",".w-reto"];
+    sel.forEach(s=>{const k=Object.keys(locks).find(k=>s===".w-"+k);if(!only&&locks[k])return;const el=document.querySelector(s);el.classList.remove("pop");void el.offsetWidth;el.classList.add("pop")})}
+}
+function newMeme(){const m=pick(MEMES);$("memewho").textContent=m[0]+":";$("meme").textContent=m[1]}
+
+/* ---------- historial ---------- */
+function saveHist(){
+  const snap={brand:cur.brand,slogan:cur.slogan,cat:cur.cat,aes:cur.aes.n,del:cur.del,reto:cur.reto,pal:cur.pal};
+  if(hist[0]&&JSON.stringify(hist[0])===JSON.stringify(snap))return;
+  hist.unshift(snap);hist=hist.slice(0,12);try{localStorage.setItem("isla-hist",JSON.stringify(hist))}catch(e){}
+  drawHist();
+}
+function drawHist(){
+  const ul=$("hist");
+  if(!hist.length){ul.innerHTML='<li class="empty">Tu libreta está vacía por ahora.</li>';return}
+  ul.innerHTML=hist.map((h,i)=>`<li><button type="button" data-i="${i}"><span class="dots">${h.pal.map(c=>`<i style="background:${c}"></i>`).join("")}</span><span class="n">${esc(h.brand)}</span><span class="s">${esc(h.cat[0])} · ${esc(h.aes)}</span></button></li>`).join("");
+  ul.querySelectorAll("button").forEach(b=>b.onclick=()=>{const h=hist[+b.dataset.i];const a=AES.find(x=>x.n===h.aes)||AES[0];
+    Object.assign(cur,{brand:h.brand,slogan:h.slogan,cat:h.cat,aes:a,del:h.del,reto:h.reto});
+    const imgs=makeImages(a);cur.imgs=imgs.map(i=>({url:i.url,name:i.name}));cur.pal=h.pal;render(true);toast("¡Encargo recuperado!")});
+}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------- copiar / toast ---------- */
+let tt;function toast(m){const t=$("toast");t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,1600)}
+function copy(text,msg){
+  const done=()=>toast(msg||"copiado");
+  try{navigator.clipboard.writeText(text).then(done).catch(fallback)}catch(e){fallback()}
+  function fallback(){const ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");done()}catch(e){toast("selecciona y copia a mano")}ta.remove()}
+}
+function brief(){return `ENCARGO · Isla de Ideas
+Marca: ${cur.brand} — “${cur.slogan}”
+Categoría: ${cur.cat[0]} (${cur.cat[1]})
+Estética: ${cur.aes.n} — ${cur.aes.d}
+Referencias: ${cur.aes.k.join(", ")}
+Paleta: ${cur.pal.join("  ")}
+Entregable: ${cur.del[0]} — ${cur.del[1]}
+Reto extra: ${cur.reto}`}
+
+/* ---------- progreso ---------- */
+const prog=$("prog");for(let i=0;i<8;i++)prog.appendChild(document.createElement("i"));
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+let busy=false;
+function go(){
+  if(busy)return;
+  if(reduce){generate();return}
+  busy=true;const cells=[...prog.children];cells.forEach(c=>c.style.opacity="");
+  let i=0;const iv=setInterval(()=>{if(i<cells.length){cells[i].style.opacity=1;i++}else{clearInterval(iv);generate();setTimeout(()=>cells.forEach(c=>c.style.opacity=""),500);busy=false}},28);
+}
+
+/* ---------- imágenes propias ---------- */
+let lib=[], assetsNS=null, dbNS=null, canRead=false, canUpload=false, firstLib=true;
+const canvasCache={};
+function toCanvas(url){
+  if(canvasCache[url])return Promise.resolve(canvasCache[url]);
+  return new Promise(res=>{const im=new Image();im.onload=()=>{const c=document.createElement("canvas");c.width=c.height=S;const x=c.getContext("2d"),sc=Math.max(S/im.width,S/im.height),w=im.width*sc,h=im.height*sc;x.drawImage(im,(S-w)/2,(S-h)/2,w,h);try{x.getImageData(0,0,1,1);canvasCache[url]=c;res(c)}catch(e){res(null)}};im.onerror=()=>res(null);im.src=url});
+}
+async function rollColor(){
+  const mode=$("umode").value,pool=lib.slice().sort(()=>R()-.5);
+  let slots=[null,null,null];
+  if(pool.length&&mode==="mine")slots=pool.slice(0,3);
+  else if(pool.length&&mode==="mix"){const k=1+Math.floor(R()*Math.min(2,pool.length));const pos=[0,1,2].sort(()=>R()-.5).slice(0,k);pos.forEach((p,i)=>slots[p]=pool[i])}
+  const gen=makeImages(cur.aes);
+  const out=await Promise.all(slots.map(async(s,i)=>{if(!s)return gen[i];const c=await toCanvas(s.url);return{url:s.url,name:s.name,canvas:c,mine:true}}));
+  cur.imgs=out.map(o=>({url:o.url,name:o.name,mine:!!o.mine}));
+  const cs=out.map(o=>o.canvas).filter(Boolean);
+  cur.pal=extractPalette(cs.length?cs:gen.map(g=>g.canvas));
+}
+async function loadFiles(files){
+  const list=[...files].filter(f=>/^image\/(png|jpeg|gif|webp)$/.test(f.type));
+  if(!list.length){toast("usa imágenes PNG, JPG, GIF o WEBP");return}
+  toast(canUpload?"guardando "+list.length+" imagen(es)...":"agregando "+list.length+" imagen(es)...");
+  let ok=0;
+  for(const f of list){
+    if(canUpload){
+      try{const r=await assetsNS.upload(f);const ref=await dbNS.collection("imagenes").add({asset:r.id,name:f.name.slice(0,80),createdAt:Date.now()});
+        if(!lib.some(x=>x.key===ref.id))lib.push({key:ref.id,asset:r.id,name:f.name,url:r.url,t:Date.now()});ok++}
+      catch(e){const c=e&&e.code;toast(c==="too_large"?f.name+" pesa más de 20 MB":c==="quota_or_state"?"ya no hay espacio para más imágenes":c==="rate_limited"?"muy rápido, espera tantito":"no se pudo guardar "+f.name)}
+    }else{const key="m"+Date.now()+Math.floor(R()*1e6),t=Date.now();lib.push({key,name:f.name,url:URL.createObjectURL(f),t});idb("put",{key,name:f.name,blob:f,t});ok++}
+  }
+  drawLib();
+  if(ok)toast(ok+" imagen(es) agregadas a tus opciones");
+  if(ok&&$("umode").value!=="rand"){await rollColor();render(true,"color");saveHist()}
+}
+function drawLib(){
+  $("lib").hidden=!lib.length;
+  $("libl").textContent=`Mis imágenes (${lib.length})`;
+  $("ucount").textContent=canUpload?"Tus imágenes se guardan en esta página y aquí siguen la próxima vez que la abras.":canRead?"Puedes ver las imágenes guardadas, pero solo quien edita la página puede agregar.":"Tus imágenes se guardan en este navegador: aquí siguen la próxima vez que abras la página.";
+  $("thumbs").innerHTML=lib.map(it=>`<div class="thumb"><img src="${esc(it.url)}" alt="${esc(it.name)}" title="${esc(it.name)}"><button type="button" data-k="${esc(it.key)}" aria-label="Quitar ${esc(it.name)}">×</button></div>`).join("");
+  $("thumbs").querySelectorAll("button").forEach(b=>{if(!canUpload&&canRead){b.hidden=true;return}b.onclick=()=>{
+    if(b.dataset.armed){removeItem(b.dataset.k);return}
+    b.dataset.armed="1";b.textContent="¿quitar?";b.classList.add("armed");
+    setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent="×";b.classList.remove("armed")}},2500)}});
+}
+async function removeItem(k){
+  const it=lib.find(x=>x.key===k);if(!it)return;
+  if(canUpload&&it.asset){try{await dbNS.collection("imagenes").doc(k).delete();lib=lib.filter(x=>x.key!==k);drawLib();await assetsNS.delete(it.asset)}catch(e){toast("no se pudo quitar")}}
+  else{lib=lib.filter(x=>x.key!==k);drawLib();idb("delete",k)}
+  toast("imagen quitada");
+}
+$("upl").onchange=e=>{loadFiles(e.target.files);e.target.value=""};
+$("umode").onchange=async()=>{if(locks.color)return;await rollColor();render(true,"color");saveHist()};
+const cw=document.querySelector(".w-color");
+["dragenter","dragover"].forEach(ev=>cw.addEventListener(ev,e=>{e.preventDefault();cw.classList.add("drop")}));
+["dragleave","drop"].forEach(ev=>cw.addEventListener(ev,e=>{e.preventDefault();cw.classList.remove("drop")}));
+cw.addEventListener("drop",e=>{if(e.dataTransfer&&e.dataTransfer.files.length)loadFiles(e.dataTransfer.files)});
+document.addEventListener("paste",e=>{const f=[...(e.clipboardData?.files||[])];if(f.length)loadFiles(f)});
+/* guardado local en el navegador (IndexedDB) */
+function idbOpen(){return new Promise((res,rej)=>{try{const r=indexedDB.open("isla-de-ideas",1);r.onupgradeneeded=()=>r.result.createObjectStore("imgs",{keyPath:"key"});r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)}catch(e){rej(e)}})}
+function idb(op,arg){return idbOpen().then(db=>new Promise((res,rej)=>{const tx=db.transaction("imgs",op==="getAll"?"readonly":"readwrite"),st=tx.objectStore("imgs"),rq=st[op](arg);rq.onsuccess=()=>res(rq.result);rq.onerror=()=>rej(rq.error)})).catch(()=>op==="getAll"?[]:null)}
+idb("getAll").then(rows=>{if(!rows||!rows.length)return;lib=rows.sort((p,q)=>p.t-q.t).map(r=>({key:r.key,name:r.name,url:URL.createObjectURL(r.blob),t:r.t})).concat(lib.filter(x=>!rows.some(r=>r.key===x.key)));drawLib();if(!locks.color&&$("umode").value!=="rand")rollColor().then(()=>{render(false);saveHist()})});
+
+/* ---------- init ---------- */
+CATS.forEach(c=>{const o=document.createElement("option");o.value=c[0];o.textContent=c[0];$("catsel").appendChild(o)});
+$("catsel").onchange=async()=>{await rollOne("cat");render(true,"cat");saveHist()};
+$("ticker").textContent=TICK.join("   ✦   ")+"   ✦   ";
+lockBtns();
+$("go").onclick=go;
+$("copy").onclick=()=>copy(brief(),"¡Encargo copiado!");
+document.addEventListener("keydown",e=>{if(e.code==="Space"&&!/INPUT|SELECT|TEXTAREA|BUTTON/.test(e.target.tagName)){e.preventDefault();go()}});
+drawHist();
+generate();
+})();
+</script>
+
+</body>
+</html>
